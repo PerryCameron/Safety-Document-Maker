@@ -1,0 +1,2 @@
+Notes:  Line 42 of Gui_Choices may need to be changed, there is probably no reason to 
+update the sA object every time a checkbox is clicked.
