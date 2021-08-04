@@ -10,10 +10,11 @@ import com.itextpdf.layout.element.Image;
 public class Pdf_SignatureTable extends Table {
 	int numberOfRows = 1;
 	
-	public Pdf_SignatureTable(int numColumns) throws IOException {
+	public Pdf_SignatureTable(int numColumns) throws IOException {  //getClass().getResourceAsStream
 		super(numColumns);
 		useAllAvailableWidth();
 		Image image = new Image(ImageDataFactory.create(Document_Main.SIGNATURE));
+		//Image image = new Image(ImageDataFactory.create("src/main/resources/" + Document_Main.SIGNATURE));
 		image.scaleAbsolute(80, 20);
 		addCell(new Cell(1,6)
 				.add(new Paragraph("All members of the crew must sign below prior to commencing work")
@@ -28,21 +29,20 @@ public class Pdf_SignatureTable extends Table {
 				.add(new Paragraph("Signature").setFontSize(4)));
     	}
     	
-    	//for(int i = 0; i < numberOfRows * 3; i++ ) {
-		addCell(new Cell().add(new Paragraph("Parrish Cameron").setFontSize(4)));
+		addCell(new Cell().add(new Paragraph(Document_Main.document.get(0).getName()).setFontSize(4)));
+		if(Document_Main.signatureEnable) {
 		addCell(new Cell().add(image));
+		} else {
+		addCell(new Cell().add(new Paragraph("").setFontSize(4)));	
+		}
 		addCell(new Cell().add(new Paragraph("").setFontSize(4)));
 		addCell(new Cell().add(new Paragraph("").setFontSize(4)));
 		addCell(new Cell().add(new Paragraph("").setFontSize(4)));
 		addCell(new Cell().add(new Paragraph("").setFontSize(4)));
-		
-    	//}
-    	
 		addCell(new Cell(1,6)
 				.setBold()
 				.add(new Paragraph("Supervisor Name and Signature (sign upon reviewing completed POWRA):")
 						.setFontSize(4)));
-		
 	}
 
 	

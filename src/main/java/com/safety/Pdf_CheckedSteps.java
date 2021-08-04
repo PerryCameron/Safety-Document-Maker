@@ -11,20 +11,16 @@ import com.itextpdf.layout.property.VerticalAlignment;
 
 public class Pdf_CheckedSteps extends Table {
 	Document_Main definitions = new Document_Main();
-	private SafetyObject sA;
 	private int countRows = 1;
 	private final int HEIGHT = 11;
 	int sequenceBegin = 0;
 
 	public Pdf_CheckedSteps(int numColumns) throws IOException {  // 4
 		super(numColumns);
-		this.sA = Document_Main.document.get(0);
 		useAllAvailableWidth();
-
 		setPadding(0);  // probably don't need
 		setBorderBottom(Border.NO_BORDER);
 		setBorderTop(Border.NO_BORDER);
-
 
 		int sequenceEnd[] = { 2,4,7,9 };  // tells how many tables to put in each cell
 		for(int i = 0; i < 4; i++) {  /// four cells in main table
@@ -44,7 +40,6 @@ public class Pdf_CheckedSteps extends Table {
 
 		column_Table.setBorderBottom(Border.NO_BORDER);
 		column_Table.setBorderTop(Border.NO_BORDER);
-		//column_Table.setPadding(0);
 
 		for(int i = sequenceBegin; i < sequenceEnd + 1; i++) {	// tables inside of each of 4 cells
 
@@ -55,13 +50,13 @@ public class Pdf_CheckedSteps extends Table {
 					.setVerticalAlignment(VerticalAlignment.MIDDLE)
 					.setTextAlignment(TextAlignment.CENTER)
 					.setBackgroundColor(Document_Main.lightGreenColor)
-					.add(new Paragraph(sA.getHEADERS(i))));
+					.add(new Paragraph(Document_Main.document.get(0).getHEADERS(i))));
 
-			for(int j = 0; j < sA.getSafetyCheckNumberOfElements(i);j++) {  // number of elements in string table
+			for(int j = 0; j < Document_Main.document.get(0).getSafetyCheckNumberOfElements(i);j++) {  // number of elements in string table
 
 
 				      //map reference string       /// get reference string
-					if(sA.getSafetyStepsMapValue(sA.getSafetyCheckarrays(i, j))) {
+					if(Document_Main.document.get(0).getSafetyStepsMapValue(Document_Main.document.get(0).getSafetyCheckarrays(i, j))) {
 					column_Table.addCell(new Cell()
 							.add(new Table(1)  /// creates small table for square around check
 									.useAllAvailableWidth()
@@ -97,7 +92,7 @@ public class Pdf_CheckedSteps extends Table {
 						.setVerticalAlignment(VerticalAlignment.MIDDLE)
 						.setBorderLeft(Border.NO_BORDER)
 						.setBorderRight(Border.NO_BORDER) 
-						.add(new Paragraph(sA.getSafetyCheckarrays(i, j))));
+						.add(new Paragraph(Document_Main.document.get(0).getSafetyCheckarrays(i, j))));
 				countRows++;  // will number our rows
 			}
 			sequenceBegin++;	

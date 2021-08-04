@@ -1,13 +1,17 @@
 package com.safety;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.kernel.colors.Color;
@@ -17,7 +21,23 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+
 public class Document_Main {
+	//static SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM yyyy");
+	public static final String VERSION = "0.8";
+	// this variable determines where a custom step is saved permanently
+	public static boolean saveStepToFile = false;
+	// this variable determines how a saved custom step should be classified
+	public static int stepCategory = 0;
+	// this variable determines whether Signature.png should be applied to PDF
+	public static boolean signatureEnable = true;
+	public static File recordsDir;
+	public static String saveDirectory;
+	public static String saFileName = "SE001B Point of Work Risk Assessment.pdf";
+	public static boolean openDocumentUponCreation = false;  // will we open the PDF after creating it
+	
 	static Color lightGreenColor = new DeviceCmyk(0.78f, 0, 0.81f, 0.21f);
 	static Color yellowColor = new DeviceCmyk(0, 0, 0.76f, 0.01f);
 	static Color redColor = new DeviceCmyk(0, 0.76f, 0.86f, 0.01f);
@@ -25,26 +45,53 @@ public class Document_Main {
 	static Color lightGrayColor = new DeviceCmyk(0.43f, 0.41f, 0.32f, 0.11f);
 	// static Color lightGreenColor = new DeviceCmyk(0.64f, 0.25f, 0.63f, 0.25f);
 	
-	public static final String SAFETY_IMG = "src/main/resources/img/Safety.png";
-	public static final String DEST = "temp/SE001B Point of Work Risk Assessment.pdf";
-	public static final String TOPFOLDER = "icons/folder_classic_add.png";
-	public static final String DOCUMENT = "icons/document_a4_blank.png";
-	public static final String DOCUMENT_ICON = "src/main/resources/img/Document.png";
+	public static final String ROOTDIR = "src/main/resources/";
+	public static final String USERFILETEMPLATE = "/data/users.udf";
+	public static final String STEPSFILETEMPLATE = "/data/steps.udf";
+	public static final String SAFETY_IMG = "/img/Safety.png";
+	public static final String PROGRAM_ICON = "/img/Document.ico";
+	public static final String TOPFOLDER =  "/img/folder_classic_add.png";
+	public static final String DOCUMENT = "/img/document_a4_blank.png";
+	public static final String DOCUMENT_ICON = "/img/Document.png";
 	public static final String MAINCSS = "css/stylesheet.css";
-	public static final String SIGNATURE = "src/main/resources/img/Signature.png";
-	public static final String USERFILE = "src/main/resources/data/users.udf";
+	public static final String SIGNATURE = System.getProperty("user.home") + "/.document/img/Signature.png";
+	public static final String INITIALS = System.getProperty("user.home") + "/.document/img/Initials.png";
+	public static final String USERFILE = System.getProperty("user.home") + "/.document/users.udf";
+	public static final String STEPFILE = System.getProperty("user.home") + "/.document/steps.udf";
 	
-	public static final String SAVEICON = "src/main/resources/img/Savex32.png";
-	public static final String NEWICON = "src/main/resources/img/Newx32.png";
-	public static final String OPENICON = "src/main/resources/img/Openx32.png";
-	public static final String CONFICON = "src/main/resources/img/Pinionx32.png";
-	public static final String USERICON = "src/main/resources/img/Userx32.png";
-	public static final String SCHNEIDER = "src/main/resources/img/Schneider.png";
-	public static final String EXIT = "src/main/resources/img/exit_32.png";
+	public static final String SAVEICON = "/img/Savex32.png";
+	public static final String NEWICON = "/img/Newx32.png";
+	public static final String OPENICON = "/img/Openx32.png";
+	public static final String CONFICON = "/img/Pinionx32.png";
+	public static final String USERICON = "/img/Userx32.png";
+	public static final String SCHNEIDER = "/img/Schneider.png";
+	public static final String EXIT = "/img/exit_32.png";
+	public static final String PICKSTEPS = "/img/pickstep.png";
+	public static final String SAVEOK = "/img/save_OK.png";
+	public static final String SAVENOK = "/img/save_NOK.png";
+	public static final String EDITICON = "/img/edit.png";
+	
+	private final static String[] MONTHS = {  /// headings for each group
+			"January" ,"February","March","April","May","June","July"
+			,"August","September","October","November","December"
+	};
 	
 	/// this is the list of safety assessment objects that have been created
 	static List<SafetyObject> document = new ArrayList<SafetyObject>();
 	static List<UserObject> users = new ArrayList<UserObject>();
+	static List<StepsObject> jobSteps = new ArrayList<StepsObject>();
+	
+	public static StepsObject getSteps(int index) {
+		return jobSteps.get(index);
+	}
+
+	public static void setStep(StepsObject thisStep) {
+		jobSteps.add(thisStep);
+	}
+	
+	public static void removeStep(int element) {
+		jobSteps.remove(element);
+	}
 	
 	public static Paragraph setCheckMark(int fontSize) throws IOException {
 	    Paragraph checkMark = new Paragraph("");
@@ -55,14 +102,76 @@ public class Document_Main {
 	    return checkMark;
 	}
 	
-	public static void saveUserObjects() {  // saves SA object to file
+	public static void clearSafetyObject() {		
+		/// Information Tab
+		Gui_Main.infoTab.workOrderTextField.setText("");
+		Gui_Main.infoTab.scopeComboBox.setValue("Preventive Maintenance");
+		Gui_Main.infoTab.nameTextField.setText("");
+		Gui_Main.infoTab.addressTextField.setText("");
+		Gui_Main.infoTab.cityTextField.setText("");
+		Gui_Main.infoTab.stateComboBox.setValue("");
+		Gui_Main.infoTab.zipTextField.setText("");
+		Gui_Main.infoTab.customerTextField.setText("");
+		Gui_Main.infoTab.subcontractorTextField.setText("none");
+		
+		for(int p = 0; p < document.get(0).getSafetyCheckarraysRows(); p++) {  /// for each row
+			for(int q = 0; q < document.get(0).getSafetyCheckNumberOfElements(p); q++) {  /// for each element of that row
+					Gui_Main.choicesTab.checkBoxHashMap.get(document.get(0).getSafetyCheckarrays(p,q)).setSelected(false);
+			}
+		}
+		
+		document.get(0).setWorkOrder("");
+		document.get(0).setName("");
+		document.get(0).setStreetAddress("");
+		document.get(0).setCity("");
+		document.get(0).setState("");
+		document.get(0).setZipcode("");
+		document.get(0).setCustomer("");
+		document.get(0).setSubContractor("none");
+		// job steps tab
+		Document_Main.document.get(0).clearAllSteps();
+		Gui_Main.stepsTab.listView.getItems().clear();
+	}
+	
+	public static void saveStepObjects() {  // saves user file to disk
+		File g = new File(STEPFILE);
+		System.out.println("saving " + STEPFILE);
+		try	{
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(g));
+			out.writeObject(jobSteps); 
+			out.close();
+		} catch (Exception e) {
+			System.out.println( e.getMessage() );
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+	
+	public static void openStepObjects() {
+		System.out.println();
+		File g = new File(STEPFILE);
+		if (g.exists()) {
+			try {
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(g));
+				jobSteps = (List<StepsObject>) in.readObject();
+				in.close();
+			} catch (Exception e) {
+				System.out.println("Error occurred during reading the file");
+				System.out.println( e.getMessage() );
+				e.printStackTrace();
+			}			  
+		} else {
+			System.out.println("There is no file " + STEPFILE);
+		}
+	}
+	
+	public static void saveUserObjects() {  // saves user file to disk
 		File g = new File(USERFILE);
 		System.out.println("saving " + USERFILE);
 		try	{
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(g));
 			out.writeObject(users); 
 			out.close();
-			System.out.println(USERFILE + "Saved Sucessful!");
 		} catch (Exception e) {
 			System.out.println( e.getMessage() );
 			e.printStackTrace();
@@ -86,7 +195,6 @@ public class Document_Main {
 		} else {
 			System.out.println("There is no file " + USERFILE);
 		}
-		
 	}
 	
 	public static void saveSafetyObjects(File g) {  // saves SA object to file
@@ -94,7 +202,6 @@ public class Document_Main {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(g));
 			out.writeObject(document); 
 			out.close();
-			System.out.println("Safetyfile Saved Sucessfully!");
 		} catch (Exception e) {
 			System.out.println( e.getMessage() );
 			e.printStackTrace();
@@ -103,7 +210,7 @@ public class Document_Main {
 	}
 	
 	public static void openSaftyObjects(File g) {
-		System.out.println();
+		clearSafetyObject();  // clears out old data before loading new data
 		if (g.exists()) {
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(g));
@@ -117,16 +224,55 @@ public class Document_Main {
 		} else {
 			System.out.println("There is no file ");
 		}
-		
 	}
 	
+	public static Image openSignature(File g) {
+		Image thisImage = null;
+		if (g.exists()) {
+			try {
+				BufferedImage bufferedImage = ImageIO.read(g);
+                thisImage = SwingFXUtils.toFXImage(bufferedImage, null);
+			} catch (Exception e) {
+				//Logger.getLogger(JavaFXPixel.class.getName()).log(Level.SEVERE, null, ex);
+				System.out.println("Error occurred during reading the file");
+				System.out.println( e.getMessage() );
+				e.printStackTrace();
+			}			  
+		} else {
+			System.out.println("There is no file ");
+		}
+		return thisImage;
+	}
+	
+	public static void setUpForFirstTime() throws Exception {
+		recordsDir = new File(System.getProperty("user.home"), ".document/img");
+		if (!recordsDir.exists()) {
+			System.out.println("Creating dir: " + System.getProperty("user.home") + "/.document"); // USERFILETEMPLATE
+			System.out.println("Creating dir: " + System.getProperty("user.home") + "/.document/img");
+		    recordsDir.mkdirs();
+		    System.out.println("Installing: " + ResourceManager.extract(Document_Main.SIGNATURE, (System.getProperty("user.home") + "\\.document\\img\\")));
+		    System.out.println("Installing: " + ResourceManager.extract(Document_Main.INITIALS, (System.getProperty("user.home") + "\\.document\\img\\")));
+		    System.out.println("Installing: " + ResourceManager.extract(Document_Main.PROGRAM_ICON, (System.getProperty("user.home") + "\\.document\\")));
+		    System.out.println("Installing: " + ResourceManager.extract(Document_Main.USERFILETEMPLATE, (System.getProperty("user.home") + "\\.document\\")));
+		}
+	}
+
 	public static void updateVariables() {  /// saves value of fields to SA object
-		// Gui_Main.completionTab.writeJobDataToObject();
-		Gui_Main.choicesTab.saveHashtoObject(); // saves the value of CheckBoxes to sA object
+		// grap date in separate integer values
+		int month = Gui_Main.infoTab.checkInDatePicker.getValue().getMonthValue();
+		int day = Gui_Main.infoTab.checkInDatePicker.getValue().getDayOfMonth();
+		int year = Gui_Main.infoTab.checkInDatePicker.getValue().getYear();
+		// change format of the date to look prettier for PDF
+		String printedDate = (MONTHS[month-1] + " " + day + ", " + year);
+		// saves the value of CheckBoxes to sA object
+		Gui_Main.choicesTab.saveHashtoObject();
 		document.get(0).setWorkOrder(Gui_Main.infoTab.workOrderTextField.getText());
 		document.get(0).setName(Gui_Main.infoTab.nameTextField.getText());
-		document.get(0).setDate(Gui_Main.infoTab.dateTextField.getText());
-		document.get(0).setStreetAddress(Gui_Main.infoTab.locationTextField.getText());
+		document.get(0).setDate(printedDate);
+		document.get(0).setStreetAddress(Gui_Main.infoTab.addressTextField.getText());
+		document.get(0).setCity(Gui_Main.infoTab.cityTextField.getText());
+		document.get(0).setState(Gui_Main.infoTab.stateComboBox.getValue());
+		document.get(0).setZipcode(Gui_Main.infoTab.zipTextField.getText());
 		document.get(0).setCustomer(Gui_Main.infoTab.customerTextField.getText());
 		document.get(0).setSubContractor(Gui_Main.infoTab.subcontractorTextField.getText());
 		document.get(0).setScopeOfWork((String) Gui_Main.infoTab.scopeComboBox.getValue());
@@ -160,9 +306,12 @@ public class Document_Main {
 	
 	public static void updateGui() {
 		Gui_Main.infoTab.nameTextField.setText(document.get(0).getName());
-		Gui_Main.infoTab.dateTextField.setText(document.get(0).getDate());
+		Gui_Main.infoTab.checkInDatePicker.setPromptText(document.get(0).getDate());
 		Gui_Main.infoTab.workOrderTextField.setText(document.get(0).getWorkOrder());
-		Gui_Main.infoTab.locationTextField.setText(document.get(0).getStreetAddress());
+		Gui_Main.infoTab.addressTextField.setText(document.get(0).getStreetAddress());
+		Gui_Main.infoTab.cityTextField.setText(document.get(0).getCity());
+		Gui_Main.infoTab.stateComboBox.setValue(document.get(0).getState());
+		Gui_Main.infoTab.zipTextField.setText(document.get(0).getZipcode());
 		Gui_Main.infoTab.customerTextField.setText(document.get(0).getCustomer());
 		Gui_Main.infoTab.subcontractorTextField.setText(document.get(0).getSubContractor());
 		Gui_Main.infoTab.scopeComboBox.setValue(document.get(0).getScopeOfWork());
@@ -208,7 +357,7 @@ public class Document_Main {
 		printListElements(); /// prints job steps on jobStep Tab
 	}
 	
-	public static void printSafetyAssesmentData() {
+	public static void printSafetyAssesmentData() {   /// this can go soon was for testing
 		System.out.println("Name= " + document.get(0).getName());
 		System.out.println("Date= " + document.get(0).getDate());
 		System.out.println("Location= " + document.get(0).getStreetAddress());
@@ -230,11 +379,6 @@ public class Document_Main {
 				//System.out.println(Gui_Main.choicesTab.checkBoxHashMap.get(document.get(0).getSafetyCheckarrays(p,q)).isSelected());
 			}
 		}
-		System.out.println("Injuries = " + Gui_Main.completionTab.getRadioButtonState(Gui_Main.completionTab.rb1,Gui_Main.completionTab.rb2));
-		System.out.println("Remaining Hazards = " + Gui_Main.completionTab.getRadioButtonState(Gui_Main.completionTab.rb3,Gui_Main.completionTab.rb4));
-		System.out.println("Area Cleaned = " + Gui_Main.completionTab.getRadioButtonState(Gui_Main.completionTab.rb5,Gui_Main.completionTab.rb6));
-		System.out.println(document.get(0).getStepSize());
-		
 	}
 	
 	public static void printListElements() {  /// prints job steps on job step tab
@@ -251,14 +395,52 @@ public class Document_Main {
         }
 	}
 	
+	public static void permantlySaveListElements() {  /// prints job steps on job step tab
+		int listViewElement = 1;
+		for(int i = 0; i < document.get(0).getStepSize();i++) {
+			
+			Gui_Main.stepsTab.listView.getItems().add(listViewElement + ") " 
+					+ document.get(0).getSteps(i).jobSteps
+					+ " / "
+					+ document.get(0).getSteps(i).hazards
+					+ " / "
+					+ document.get(0).getSteps(i).controls);
+        	listViewElement++;
+        }
+	}
+	
+	public static String getCustomerDirectory() {  // will give user selected customer directory if set
+		String directory;							// or home directory if not set
+		if(users.get(0).getCustomerDirectory() == null) {
+			directory = System.getProperty("user.home");
+		} else {
+			directory = users.get(0).getCustomerDirectory();
+		}
+		return directory;
+	}
+	
+	
 	public static void clearFields() {
-		Gui_JobStepsTab.jobStepsTextField.clear();
-		Gui_JobStepsTab.hazardsTextField.clear();
-		Gui_JobStepsTab.controlMeasuresTextField.clear();
-		Gui_JobStepsTab.rb1.setSelected(true);
+		Gui_Main.stepsTab.jobStepsTextField.clear();
+		Gui_Main.stepsTab.hazardsTextField.clear();
+		Gui_Main.stepsTab.controlMeasuresTextField.clear();
+		Gui_Main.stepsTab.rb1.setSelected(true);
 	}
 	
 	public static int getDocumentArraySize() {
 		return document.size();
 	}
+	
+	   public static byte[] toByteArray(InputStream in) throws IOException {  // for taking inputStream and returning byte array
+		      //InputStream is = new BufferedInputStream(System.in);
+		      ByteArrayOutputStream os = new ByteArrayOutputStream();
+		      byte [] buffer = new byte[1024];
+		      int len;
+		      // read bytes from the input stream and store them in buffer
+				while ((len = in.read(buffer)) != -1) {
+					// write bytes from the buffer into output stream
+					os.write(buffer, 0, len);
+				}
+				return os.toByteArray();
+		}
 }

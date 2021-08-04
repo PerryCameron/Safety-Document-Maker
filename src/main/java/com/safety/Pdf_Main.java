@@ -18,9 +18,7 @@ import java.io.IOException;
 public class Pdf_Main {
     
     public static int counter = 1;
-    SafetyObject sA;
-    public void createPdf(String dest, SafetyObject safeA) throws IOException {
-    	this.sA = safeA;
+    public void createPdf(String dest) throws IOException {
 
         //Initialize PDF writer
         PdfWriter writer = new PdfWriter(dest);
@@ -31,16 +29,19 @@ public class Pdf_Main {
         // Initialize document
         Document document = new Document(pdf);
         //PageSize ps = PageSize.A5;
-        
+
         document.add(mainPdfTable());
         document.setTopMargin(0);
         //Close document
         document.close();
-        Desktop desktop = Desktop.getDesktop();
-        File file = new File(Document_Main.DEST);
-        if(file.exists()) desktop.open(file); 
+        Desktop desktop = Desktop.getDesktop(); // Gui_Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()
+        if(Document_Main.openDocumentUponCreation == true) {  // do we open the PDF after we have created it
+        	File file = new File(Document_Main.saveDirectory + "\\" + Document_Main.saFileName);
+        	System.out.println(Document_Main.saveDirectory + "\\" + Document_Main.saFileName);
+        	if(file.exists()) desktop.open(file); 
+        }
     }
-   
+
     public Table mainPdfTable() throws IOException {
     	Table mainTable = new Table(1);
     	mainTable.setBorder(Border.NO_BORDER);
@@ -70,11 +71,12 @@ public class Pdf_Main {
         cell_1.add(new Pdf_PageHeaderTable(2)); 
         cell_2.add(new Pdf_HeaderTable(1)); 
         cell_3.add(new Pdf_CheckedSteps(4));
-        cell_4.add(new Pdf_AssesmentTable(4));
-        cell_5.add(new Pdf_JobStepsTable(5));
-        cell_6.add(new Pdf_JobCompletionTable(1));
-        cell_7.add(new Pdf_SignatureTable(6));
-
+        
+        cell_4.add(new Pdf_JobStepsTable(5));
+        cell_5.add(new Pdf_JobCompletionTable(1));
+        cell_6.add(new Pdf_SignatureTable(6));
+        cell_7.add(new Pdf_AssesmentTable(4));
+        
 		mainTable.addCell(cell_1);
 		mainTable.addCell(cell_2);
 		mainTable.addCell(cell_3);

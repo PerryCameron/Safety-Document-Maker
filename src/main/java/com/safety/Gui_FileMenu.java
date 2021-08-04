@@ -14,36 +14,35 @@ import javafx.stage.Stage;
 
 public class Gui_FileMenu {
 	static FileChooser fileChooser = new FileChooser();
-	//private static Desktop desktop = Desktop.getDesktop();
 	
 	static MenuBar buildMenuBarWithMenus(final ReadOnlyDoubleProperty menuWidthProperty, final Stage primaryStage) {
 		
 		final MenuBar menuBar = new MenuBar();
 		final Menu fileMenu = new Menu("File");
-		final Menu testMenu = new Menu("Test");
-		final Menu helpMenu = new Menu("Help");
-	    final MenuItem aboutMenuItem = new MenuItem("About");
+		//final Menu testMenu = new Menu("Test");
+		//final Menu helpMenu = new Menu("Help");
+	    //final MenuItem aboutMenuItem = new MenuItem("Testing dirs and stuff");
 	    final MenuItem exit = new MenuItem("Exit");
 	    final MenuItem open = new MenuItem("Open");
-	    final MenuItem newData = new MenuItem("Count User Accounts");
+	   // final MenuItem newData = new MenuItem("Count User Accounts");
 	    final MenuItem save = new MenuItem("Save");
-	    final MenuItem accountTestPrint = new MenuItem("Print SaftyAssesment Data to Console");
-	    final MenuItem customerTestPrint = new MenuItem("Print Customer to console");
-	    final MenuItem programInfo = new MenuItem("Number of Elements in ArrayLists");
+	    //final MenuItem accountTestPrint = new MenuItem("Print SaftyAssesment Data to Console");
+	    //final MenuItem customerTestPrint = new MenuItem("Print save directory");
+	    //final MenuItem programInfo = new MenuItem("test extract file from jar");
 	    
 		fileMenu.getItems().addAll(open,save);
 		fileMenu.getItems().add(new SeparatorMenuItem());
 		fileMenu.getItems().add(exit);
-		testMenu.getItems().addAll(newData,accountTestPrint,customerTestPrint,programInfo);
-		helpMenu.getItems().add(aboutMenuItem);
+		//testMenu.getItems().addAll(newData,accountTestPrint,customerTestPrint,programInfo);
+		//helpMenu.getItems().add(aboutMenuItem);
 		
 		menuBar.getMenus().add(fileMenu);
-		menuBar.getMenus().add(testMenu);
-		menuBar.getMenus().add(helpMenu);
+		//menuBar.getMenus().add(testMenu);
+		//menuBar.getMenus().add(helpMenu);
 			
 	      open.setOnAction(new EventHandler<ActionEvent>() {
 	          @Override public void handle(ActionEvent e) {
-	        	  configureFileChooser(fileChooser);
+	        	  configureFileChooser(fileChooser, true);
 	        	  File file = fileChooser.showOpenDialog(primaryStage);
                   if (file != null) {
                 	  Document_Main.openSaftyObjects(file);
@@ -54,23 +53,23 @@ public class Gui_FileMenu {
 	          }
 	      });
 	      
-	      newData.setOnAction(new EventHandler<ActionEvent>() {
+	  /*    newData.setOnAction(new EventHandler<ActionEvent>() {
 	          @Override public void handle(ActionEvent e) {
 				System.out.println(Document_Main.users.size());
 	          }
-	      });
+	      }); */
 	      
 	      save.setOnAction(new EventHandler<ActionEvent>() {
 	    	  @Override public void handle(ActionEvent e) {
 	    		  Document_Main.updateVariables();  /// updates the sa object with the gui fields
-	        	  configureFileChooser(fileChooser);
+	        	  configureFileChooser(fileChooser, false);
 	        	  File file = fileChooser.showSaveDialog(primaryStage);
                   if (file != null) {
                 	  Document_Main.saveSafetyObjects(file);  ///
                   }
 	    	  }
 	      });
-	      
+	/*      
 	      accountTestPrint.setOnAction(new EventHandler<ActionEvent>() {
 	    	  @Override public void handle(ActionEvent e) {
 				Document_Main.printSafetyAssesmentData();
@@ -79,25 +78,36 @@ public class Gui_FileMenu {
 	      
 	      customerTestPrint.setOnAction(new EventHandler<ActionEvent>() {
 	    	  @Override public void handle(ActionEvent e) {
-				// do stuff here
+	    		  System.out.println(System.getProperty("user.home") + "\\" + Document_Main.saFileName);
 	    	  }
 	      });
 	      
 	      programInfo.setOnAction(new EventHandler<ActionEvent>() {
 	    	  @Override public void handle(ActionEvent e) {
-				// do stuff here
+	    		  System.out.println(ResourceManager.extract(Document_Main.SIGNATURE, (System.getProperty("user.home") + "\\.document\\img\\")));
 	    	  }
 	      });
 	      
-	      aboutMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+	     aboutMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 	          @Override public void handle(ActionEvent e) {
-				// do stuff here
+	        	  Alert alert = new Alert(AlertType.INFORMATION);
+	        	  alert.setTitle("Information Dialog");
+	        	  alert.setHeaderText("Your directory is");
+	        	  alert.setContentText(
+	        			  //System.getProperty("user.dir") + Document_Main.WINSIGNATURE
+
+
+	        			  Document_Main.SIGNATUREFILE
+	        			  
+	        			  );
+
+	        	  alert.showAndWait();
 	          }
 	      });
-	     
+	     */
 	      exit.setOnAction(new EventHandler<ActionEvent>() {
 	          @Override public void handle(ActionEvent e) {
-				// do stuff here
+				System.exit(0);
 	          }
 	      });
 	      
@@ -106,12 +116,14 @@ public class Gui_FileMenu {
 		return menuBar;
 	}
 	
-	private static void configureFileChooser(final FileChooser fileChooser){                           
+	private static void configureFileChooser(final FileChooser fileChooser, boolean isOpen){ 
+		if (isOpen) {
         fileChooser.setTitle("Open Safety Assesment File");
+		} else {
+        fileChooser.setTitle("Save Safety Assesment File");
+		}
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home"))); 
         fileChooser.getExtensionFilters().addAll(
-              //  new FileChooser.ExtensionFilter("All Images", "*.*"),
-              //  new FileChooser.ExtensionFilter("JPG", "*.jpg"),
                 new FileChooser.ExtensionFilter("SAD", "*.sad")
             );
 	}

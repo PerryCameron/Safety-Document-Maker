@@ -17,6 +17,9 @@ public class SafetyObject extends Doc_ObjectSE001B implements Serializable {
 	private String subContractor;
 	private String scopeOfWork;
 	private String streetAddress;
+	private String city;
+	private String state;
+	private String zipcode;
 	private String date;
 	private String name;
 
@@ -89,8 +92,8 @@ public class SafetyObject extends Doc_ObjectSE001B implements Serializable {
 			,"Over extension"
 			,"Twisting/repetitive/bending motion"
 			,"Working in tight area"
-			," above your head"
-			,"Lift too Workingheavy"
+			,"Working above your head"
+			,"Lift too heavy"
 			,"Hands not in line of sight"
 			,"Lifting/pushing/pulling materials"
 			,"Struck by / Caught between"
@@ -176,14 +179,10 @@ public class SafetyObject extends Doc_ObjectSE001B implements Serializable {
 
 	/// getter and setters
 	
-	
-	
-	
 	public boolean getSafetyStepsMapValue(String key) {
 		return safetyStepsMap.get(key);
 	}
 	
-
 	public String getCustomer() {
 		return customer;
 	}
@@ -202,6 +201,10 @@ public class SafetyObject extends Doc_ObjectSE001B implements Serializable {
 	
 	public void removeStep(int thisStep) {
 		this.steps.remove(thisStep);
+	}
+	
+	public void clearAllSteps() {
+		this.steps.clear();
 	}
 	
 	public int getStepSize() {
@@ -240,6 +243,30 @@ public class SafetyObject extends Doc_ObjectSE001B implements Serializable {
 		this.streetAddress = streetAddress;
 	}
 
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getZipcode() {
+		return zipcode;
+	}
+
+	public void setZipcode(String zipcode) {
+		this.zipcode = zipcode;
+	}
 
 	public String getScopeOfWork() {
 		return scopeOfWork;

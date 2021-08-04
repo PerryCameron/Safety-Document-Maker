@@ -20,7 +20,8 @@ public class Pdf_AssesmentTable extends Table {
 	
 	public Pdf_AssesmentTable(int numColumns) throws IOException {
 		super(numColumns);
-		Image safetyImage = new Image(ImageDataFactory.create(Document_Main.SAFETY_IMG));
+
+		Image safetyImage = new Image(ImageDataFactory.create(Document_Main.toByteArray(getClass().getResourceAsStream(Document_Main.SAFETY_IMG))));
 		
 		Cell cell_1 = new Cell();
 		cell_1.setPadding(0);

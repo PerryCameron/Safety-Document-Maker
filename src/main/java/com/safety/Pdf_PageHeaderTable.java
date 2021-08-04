@@ -27,7 +27,7 @@ public class Pdf_PageHeaderTable extends Table {
 		cell_2.setBorder(Border.NO_BORDER);
 		cell_2.add(new Paragraph("Procedure Number: SE001 Attachment B\n"
 				+ "Page 1 of 1\n"
-				+ "Date Effective: 1/1/2018")
+				+ "Date Effective: 4/18/2018")
 				.setTextAlignment(TextAlignment.RIGHT)
 				.setFontColor(Document_Main.blueColor)
 				.setFontSize(7));

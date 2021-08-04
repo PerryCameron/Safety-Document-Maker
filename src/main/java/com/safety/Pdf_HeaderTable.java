@@ -11,11 +11,9 @@ import com.itextpdf.layout.property.VerticalAlignment;
 
 public class Pdf_HeaderTable extends Table {
 	//Document_Main definitions = new Document_Main();
-	SafetyObject sA;
 	
 	public Pdf_HeaderTable(int numColumns) throws IOException {
 		super(numColumns);
-		this.sA = Document_Main.document.get(0);
 		useAllAvailableWidth();
 		setBorder(Border.NO_BORDER);
 		Cell cell_1 = new Cell();
@@ -46,9 +44,10 @@ public class Pdf_HeaderTable extends Table {
 		Cell cell_2 = new Cell();
 		Cell cell_3 = new Cell();
 		cell_1.add(formatTable("Point of Work Risk Assessment Completed by:", Document_Main.document.get(0).getName()));
-		System.out.println("Added " + sA.getName());
-		cell_2.add(formatTable("Scope of Work:", sA.getScopeOfWork())); //
-		cell_3.add(formatTable("Location:", sA.getStreetAddress()));
+		System.out.println("Added " + Document_Main.document.get(0).getName());
+		cell_2.add(formatTable("Scope of Work:", Document_Main.document.get(0).getScopeOfWork())); //
+		cell_3.add(formatTable("Location:", Document_Main.document.get(0).getStreetAddress() + " " 
+		+ Document_Main.document.get(0).getCity() + ", " + Document_Main.document.get(0).getState() + " " + Document_Main.document.get(0).getZipcode()));
 		topTable.addCell(cell_1);
 		topTable.addCell(cell_2);
 		topTable.addCell(cell_3);
@@ -65,10 +64,10 @@ public class Pdf_HeaderTable extends Table {
 		Cell cell_3 = new Cell();
 		Cell cell_4 = new Cell();
 		Cell cell_5 = new Cell();
-		cell_1.add(formatTable("Customer:", sA.getCustomer()));
-		cell_2.add(formatTable("Date:", sA.getDate())); //
-		cell_3.add(formatTable("Job Number:", sA.getWorkOrder()));
-		cell_4.add(formatTable("Subcontractor:", sA.getSubContractor())); //
+		cell_1.add(formatTable("Customer:", Document_Main.document.get(0).getCustomer()));
+		cell_2.add(formatTable("Date:", Document_Main.document.get(0).getDate())); //
+		cell_3.add(formatTable("Job Number:", Document_Main.document.get(0).getWorkOrder()));
+		cell_4.add(formatTable("Subcontractor:", Document_Main.document.get(0).getSubContractor())); //
 		cell_5.add(energizedWork());
 		bottomTable.addCell(cell_1);
 		bottomTable.addCell(cell_2);
@@ -102,7 +101,7 @@ public class Pdf_HeaderTable extends Table {
 		cell_2.setVerticalAlignment(VerticalAlignment.MIDDLE);
 		cell_2.add(new Paragraph("Yes").setFontSize(4));
 		cell_3.setWidth(6);
-		if(sA.getEnergizedWork()) {  /// if energized work box is checked
+		if(Document_Main.document.get(0).getEnergizedWork()) {  /// if energized work box is checked
 		cell_1.add(Document_Main.setCheckMark(4).setTextAlignment(TextAlignment.CENTER));
 		cell_3.add(new Paragraph("").setTextAlignment(TextAlignment.CENTER));
 		} else {
@@ -129,8 +128,6 @@ public class Pdf_HeaderTable extends Table {
 	}
 	
 	public Table formatTable(String heading, String data) {
-		System.out.println("Data = [" + data + "]");
-		System.out.println("Get Customer ->" + sA.getCustomer());
 		Table formatTable = new Table(1);
 		formatTable.setPadding(0);
 		Cell cell_1 = new Cell();
@@ -142,7 +139,6 @@ public class Pdf_HeaderTable extends Table {
 		cell_2.setBorder(Border.NO_BORDER);
 		cell_2.setVerticalAlignment(VerticalAlignment.MIDDLE);
 		cell_2.add(new Paragraph(data).setFontSize(6).setTextAlignment(TextAlignment.CENTER));
-		//cell_2.add(new Paragraph("test").setFontSize(6).setTextAlignment(TextAlignment.CENTER));
 		formatTable.addCell(cell_1);
 		formatTable.addCell(cell_2);
 		

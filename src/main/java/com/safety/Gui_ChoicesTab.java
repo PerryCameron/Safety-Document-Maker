@@ -1,7 +1,6 @@
 package com.safety;
 
 import java.util.HashMap;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -9,23 +8,27 @@ import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class Gui_ChoicesTab extends Tab {
-	private SafetyObject sA;
-	private VBox choicesBox = new VBox();
 	public HashMap<String, CheckBox> checkBoxHashMap;
-
-	public Gui_ChoicesTab(SafetyObject sA) {
+	private TitledPane topicsTitledPane;
+	private VBox choicesBox = new VBox(10); // holds individual selections
+	
+	public Gui_ChoicesTab() {
 		super();
-		this.sA = sA;
 		this.checkBoxHashMap = createHashMap();
 		setText("Safety Checkoff");
-		HBox choicesPane = new HBox();
-		choicesBox.setSpacing(10);
+		HBox choicesPane = new HBox(); // main pane
+		
+		choicesPane.setPadding(new Insets(15,15,15,15));
 		choicesBox.setPadding(new Insets(30,10,10,30));
-		choicesPane.getChildren().addAll(createListView(), choicesBox);
+		topicsTitledPane = new TitledPane("Risk Assessment", createListView());
+		topicsTitledPane.setPrefHeight(295);
+		topicsTitledPane.getStyleClass().add("titledpane-topic");
+		choicesPane.getChildren().addAll(topicsTitledPane, choicesBox);
 		setContent(choicesPane);
 
 	}
@@ -36,9 +39,9 @@ public class Gui_ChoicesTab extends Tab {
 
 	public HashMap<String, CheckBox> createHashMap() {
 		HashMap<String, CheckBox> hashMap = new HashMap<String, CheckBox>();  // creates hashmap putting string with boolean
-		for(int p = 0; p < sA.getSafetyCheckarraysRows(); p++) {  /// for each row
-			for(int q = 0; q < sA.getSafetyCheckNumberOfElements(p); q++) {  /// for each element of that row
-				hashMap.put(sA.getSafetyCheckarrays(p,q), new CheckBox(sA.getSafetyCheckarrays(p,q)));// match strings to their boolean
+		for(int p = 0; p < Document_Main.document.get(0).getSafetyCheckarraysRows(); p++) {  /// for each row
+			for(int q = 0; q < Document_Main.document.get(0).getSafetyCheckNumberOfElements(p); q++) {  /// for each element of that row
+				hashMap.put(Document_Main.document.get(0).getSafetyCheckarrays(p,q), new CheckBox(Document_Main.document.get(0).getSafetyCheckarrays(p,q)));// match strings to their boolean
 				/// key = text out of 2D array, match = checkbox
 			}
 		}
@@ -46,9 +49,9 @@ public class Gui_ChoicesTab extends Tab {
 	}
 	
 	public void saveHashtoObject() {  /// writes all values from checkboxs to sA object
-		for(int p = 0; p < sA.getSafetyCheckarraysRows(); p++) {
-			for(int q = 0; q < sA.getSafetyCheckNumberOfElements(p); q++) {
-				sA.setSafetyBooleanValue(checkBoxHashMap.get(sA.getSafetyCheckarrays(p,q)).isSelected(), sA.getSafetyCheckarrays(p,q)); 
+		for(int p = 0; p < Document_Main.document.get(0).getSafetyCheckarraysRows(); p++) {
+			for(int q = 0; q < Document_Main.document.get(0).getSafetyCheckNumberOfElements(p); q++) {
+				Document_Main.document.get(0).setSafetyBooleanValue(checkBoxHashMap.get(Document_Main.document.get(0).getSafetyCheckarrays(p,q)).isSelected(), Document_Main.document.get(0).getSafetyCheckarrays(p,q)); 
 			}
 		}
 	}
@@ -109,13 +112,13 @@ public class Gui_ChoicesTab extends Tab {
 	}
 
 	public void createChoiceRow(int selection) {
-		for(int i = 0; i < sA.getSafetyCheckNumberOfElements(selection); i++) {
+		for(int i = 0; i < Document_Main.document.get(0).getSafetyCheckNumberOfElements(selection); i++) {
 			// gets correct CheckBoxes and adds them to panel
-			choicesBox.getChildren().addAll(checkBoxHashMap.get(sA.getSafetyCheckarrays(selection,i)));
+			choicesBox.getChildren().addAll(checkBoxHashMap.get(Document_Main.document.get(0).getSafetyCheckarrays(selection,i)));
 			// checks to see if the checkbox should be checked
-			if(sA.getSafetyStepsMapValue(sA.getSafetyCheckarrays(selection,i))) {
+			if(Document_Main.document.get(0).getSafetyStepsMapValue(Document_Main.document.get(0).getSafetyCheckarrays(selection,i))) {
 				// checks Checkbox if the hashmapped boolean value is true
-				checkBoxHashMap.get(sA.getSafetyCheckarrays(selection,i)).setSelected(true);
+				checkBoxHashMap.get(Document_Main.document.get(0).getSafetyCheckarrays(selection,i)).setSelected(true);
 			}
 		}
 	}

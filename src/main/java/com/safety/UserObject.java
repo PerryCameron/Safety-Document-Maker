@@ -2,8 +2,6 @@ package com.safety;
 
 import java.io.Serializable;
 
-import javafx.scene.image.Image;
-
 public class UserObject implements Serializable {
 	/**
 	 * 
@@ -11,8 +9,9 @@ public class UserObject implements Serializable {
 	private static final long serialVersionUID = 3334635330036439635L;
 	private String firstName;
 	private String lastName;
-	private Image signature;
-	private Image initial;
+	private String customerDirectory;
+	// private Image signature;
+	// private Image initial;
 	
 	public UserObject(String firstName, String lastName) {
 		super();
@@ -35,28 +34,17 @@ public class UserObject implements Serializable {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-
-	public Image getSignature() {
-		return signature;
+	
+	public String getCustomerDirectory() {
+		return customerDirectory;
 	}
 
-	public void setSignature(Image signature) {
-		this.signature = signature;
-	}
-
-	public Image getInitial() {
-		return initial;
-	}
-
-	public void setInitial(Image initial) {
-		this.initial = initial;
+	public void setCustomerDirectory(String customerDirectory) {
+		this.customerDirectory = customerDirectory;
 	}
 
 	@Override
 	public String toString() {
 		return "UserObject [firstName=" + firstName + ", lastName=" + lastName + "]";
 	}
-	
-	
-
 }
