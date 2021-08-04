@@ -24,7 +24,7 @@ public class Gui_TreeViewPane extends Pane {
 	@SuppressWarnings("unchecked")
 	public Gui_TreeViewPane(final TabPane tabPane, HashMap<String, Tab> tabsMap) throws FileNotFoundException {
 		super();
-		this.treeview = new TreeView<>();
+		this.treeview = new TreeView<String>();
 		this.tabsMap = tabsMap;
 		Document_Main.document.add(new SafetyObject()); // had to create this here
 		setHeight(650);
@@ -34,14 +34,14 @@ public class Gui_TreeViewPane extends Pane {
 		Image image1 = new Image(input1);
 		Image image2 = new Image(input2);
 		
-		TreeItem<String> root = new TreeItem<>("Safety Assesment", new ImageView(image1));
+		TreeItem<String> root = new TreeItem<String>("Safety Assesment", new ImageView(image1));
 
 		//root.setExpanded(true);
 		
-		TreeItem<String> item1 = new TreeItem<>("Information",new ImageView(image2));
-		TreeItem<String> item2 = new TreeItem<>("Safety Checkoff",new ImageView(image2));
-		TreeItem<String> item3 = new TreeItem<>("Job Steps",new ImageView(image2));
-		TreeItem<String> item4 = new TreeItem<>("Job Completion",new ImageView(image2));
+		TreeItem<String> item1 = new TreeItem<String>("Information",new ImageView(image2));
+		TreeItem<String> item2 = new TreeItem<String>("Safety Checkoff",new ImageView(image2));
+		TreeItem<String> item3 = new TreeItem<String>("Job Steps",new ImageView(image2));
+		TreeItem<String> item4 = new TreeItem<String>("Job Completion",new ImageView(image2));
 		
 		treeview.getStyleClass().add("tree");
 		treeview.setRoot(root);
